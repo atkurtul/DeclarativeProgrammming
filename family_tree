@@ -1,0 +1,117 @@
+#!/usr/bin/swipl
+
+% Atil Kurtulmus
+% 181805033
+% January 23, 2021
+
+%Declarations
+
+male(omer).
+male(hayri).
+
+male(ceyhan).
+male(cihan).
+male(murat).
+male(ekrem).
+
+male(ceyhan_jr).
+male(kadri).
+male(umut).
+male(ergun).
+male(efe).
+male(ali).
+male(atil).
+male(ulas).
+
+female(safinaz).
+female(suna).
+female(seyma).
+female(duriye).
+female(serife).
+female(sukriye).
+
+
+parent(hayri, ceyhan).
+parent(hayri, cihan).
+parent(hayri, murat).
+parent(hayri, sukriye).
+
+parent(ceyhan, seyma).
+parent(ceyhan, duriye).
+parent(ceyhan, ceyhan_jr).
+parent(safinaz, seyma).
+parent(safinaz, duriye).
+parent(safinaz, ceyhan_jr).
+
+parent(murat, kadri).
+parent(murat, umut).
+parent(serife, kadri).
+parent(serife, umut).
+parent(ekrem, ergun).
+parent(ekrem, efe).
+parent(ekrem, ali).
+parent(sukriye, ergun).
+parent(sukriye, efe).
+parent(sukriye, ali).
+
+parent(cihan, ulas).
+parent(cihan, atil).
+
+parent(suna, atil).
+parent(suna, ulas).
+
+sibling(omer, hayri).
+
+%Definitions
+
+% X is sibling of Y iff X, Y have the same parent and X, Y are not the same
+sibling(X, Y) :- parent(Z, X), parent(Z, Y), X \= Y.
+
+% Being a father implies being a parent and being a male
+father(X, Y) :- parent(X, Y), male(X).
+
+% Being a mother implies being a parent and being a female
+mother(X, Y) :- parent(X, Y), female(X).
+
+% Here we can define brother in terms sibling
+brother(X, Y) :- sibling(X, Y), male(X).
+
+% Same with sister
+sister(X, Y)  :- sibling(X, Y), female(X).
+
+% X is uncle of Z iff there exists Y such that X is brother of Y and Y is parent of Z 
+uncle(X, Z) :- brother(X, Y), parent(Y, Z).
+
+% X is grand uncle of Z iff there exists Y such that X is uncle of Y and Y is parent of Z
+grand_uncle(X, Z) :- uncle(X, Y), parent(Y, Z).
+
+% X is grandparent of Z iff there exists Y such that X is parent of Y and Y is parent of Z
+grandparent(X, Z) :- parent(X, Y), parent(Y, Z).
+
+% See https://imgur.com/JYe4Ynx
+%
+% ?- grand_uncle(omer, X).
+% X = seyma ;
+% X = duriye ;
+% X = ceyhan_jr ;
+% X = ulas ;
+% X = atil ;          => My name
+% X = kadri ;
+% X = umut ;
+% X = ergun ;
+% X = efe ;
+% X = ali ;
+% false.
+% 
+% Altough you required for our own names to be in the 5th place in the solution set,
+% in ISO Prolog standard, I could not find anything that dictates the orders which the solutions must be in.
+% Even though I have achieved the desired result in my query,
+% it might not be the case when the same program is run with different prolog interpreter implementations.
+%
+% See http://fsl.cs.illinois.edu/images/9/9c/PrologStandard.pdf 
+% A.8.6  Finding all solutions to a query
+% ...
+% ?- bagof(Who, Child, parent(Who, Child), L).
+% L = [michael, melody, greg, crystal]
+% The order of solutions obtained by bagof is up to the implementor
+%
